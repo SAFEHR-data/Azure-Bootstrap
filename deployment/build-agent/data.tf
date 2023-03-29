@@ -14,11 +14,11 @@
 
 data "template_file" "cloud_config" {
 
-  template = file("cloud-config.yaml")
+  template = file("${path.module}/cloud-config.yaml")
   vars = {
-    GITHUB_RUNNER_TOKEN = var.github_runner_token
-    GITHUB_ORGANIZATION = var.github_organization
-    GH_RUNNER_VERSION = var.gh_runner_version
+    GITHUB_RUNNER_TOKEN   = var.github_runner_token
+    GITHUB_ORGANIZATION   = var.github_organization
+    GITHUB_RUNNER_VERSION = var.github_runner_version
   }
 }
 
@@ -29,6 +29,6 @@ data "template_cloudinit_config" "build_agent" {
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.data_import_vm_cloud_config[0].rendered
+    content      = data.template_file.cloud_config.rendered
   }
 }

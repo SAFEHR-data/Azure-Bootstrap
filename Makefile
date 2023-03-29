@@ -14,7 +14,17 @@
 
 SHELL:=/bin/bash
 
-all: ## Deploy all bootstrap resources
+all: deploy
+
+deploy:  ## Deploy all bootstrap resources
+	./scripts/modify_storage_ip_exception.sh add \
 	cd ./deployment \
 	&& terraform init \
-	&& terraform apply -var-file="../config.tfvars" -auto-approve
+	&& terraform apply -var-file="../config.tfvars" -auto-approve \
+	&& ./scripts/modify_storage_ip_exception.sh remove \
+	&& terraform state rm module.build-agent.random_password.gh_runner_vm
+
+destroy: ## Destroy all bootstrap resources
+	./scripts/modify_storage_ip_exception.sh add \
+	&& cd ./deployment \
+	&& terraform destroy -var-file="../config.tfvars" -auto-approve

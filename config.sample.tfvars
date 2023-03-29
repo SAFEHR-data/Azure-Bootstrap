@@ -12,6 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-suffix            = "__CHANGE_ME__"
-location          = "uksouth"
-gh_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
+suffix                = "__CHANGE_ME__"
+location              = "uksouth"
+github_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
+github_organization   = "__CHANGE_ME__"
+address_space         = "10.0.0.0/24"
+
+# Optional:
+# network_watcher_name                = "NetworkWatcher_uksouth" 
+# network_watcher_resource_group_name = "NetworkWatcherRG"

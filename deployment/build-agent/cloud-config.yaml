@@ -32,7 +32,7 @@ write_files:
       echo "Registering GH runner.."
 
       GITHUB_RUNNER_NAME=$(hostname)
-      echo "Setting runner name as ${GITHUB_RUNNER_NAME}"
+      echo "Setting runner name as $GITHUB_RUNNER_NAME"
 
       # See: https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization
       REGISTRATION_TOKEN=$(curl \
@@ -44,7 +44,7 @@ write_files:
         "https://api.github.com/orgs/${GITHUB_ORGANIZATION}/actions/runners/registration-token" \
         | awk '/token/ { gsub(/[",]/,""); print $2}')
 
-      if [ "${REGISTRATION_TOKEN}" != "" ]; then
+      if [ "$REGISTRATION_TOKEN" != "" ]; then
         echo "Created registration token"
       else
         echo "Failed to obtain a registration token. Check the scope of \$GITHUB_RUNNER_TOKEN"
@@ -58,9 +58,9 @@ write_files:
       # The GH_RUNNER_NAME must be unique within the repositry.
       ./config.sh --ephemeral \
           --url "https://github.com/${GITHUB_ORGANIZATION}" \
-          --token "${REGISTRATION_TOKEN}" \
-          --name "${GITHUB_RUNNER_NAME}" \
-          --labels "${GITHUB_RUNNER_NAME}" \
+          --token "$REGISTRATION_TOKEN" \
+          --name "$GITHUB_RUNNER_NAME" \
+          --labels "$GITHUB_RUNNER_NAME" \
           --unattended \
           --disableupdate
 
@@ -76,7 +76,7 @@ packages:
 runcmd:
   - export DEBIAN_FRONTEND=noninteractive
   - mkdir -p /tmp/actions-runner
-  - curl -o runner.tar.gz -L https://github.com/actions/runner/releases/download/${GH_RUNNER_VERSION}/actions-runner-linux-x64-2.302.1.tar.gzcurl
+  - curl -o runner.tar.gz -L https://github.com/actions/runner/releases/download/${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-2.302.1.tar.gz
   - tar xzf runner.tar.gz -C /tmp/actions-runner
   - rm runner.tar.gz
   - bash /start_gh_runner.sh

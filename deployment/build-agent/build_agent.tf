@@ -29,16 +29,15 @@ resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
   name                  = "vm-gh-runner-${var.suffix}"
   resource_group_name   = var.resource_group_name
   location              = var.location
-  size                  = "Standard_B2"
+  sku                   = "Standard_B2s"
   instances             = 1
-  network_interface_ids = [azurerm_network_interface.gh_runner_vm.id]
 
   admin_username = local.gh_runner_vm_username
   admin_password = random_password.gh_runner_vm.result
 
   disable_password_authentication = false
 
-  custom_data = data.template_cloudinit_config.gh_runner_vm.rendered
+  custom_data = data.template_cloudinit_config.build_agent.rendered
 
   os_disk {
     disk_size_gb         = 128
@@ -56,16 +55,15 @@ resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
   identity {
     type = "SystemAssigned"
   }
-}
 
-resource "azurerm_network_interface" "gh_runnert_vm" {
-  name                = "nic-gh-runner-vm-${var.suffix}"
-  resource_group_name = var.resource_group_name
-  location            = var.location
+  network_interface {
+    name    = "nic-gh-runner-vm-${var.suffix}"
+    primary = true
 
-  ip_configuration {
-    name                          = "ip-configuration-${var.suffix}"
-    subnet_id                     = azurerm_subnet.bootstrap_shared.id
-    private_ip_address_allocation = "Dynamic"
+    ip_configuration {
+      name      = "internal"
+      primary   = true
+      subnet_id = var.shared_subnet_id
+    }
   }
 }

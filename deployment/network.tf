@@ -13,23 +13,19 @@
 #  limitations under the License.
 
 resource "azurerm_virtual_network" "bootstrap" {
-  name                = "vnet-bootstrap-${var.naming_suffix}"
+  name                = "vnet-bootstrap-${var.suffix}"
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
   tags                = var.tags
-
-  address_space = [
-    var.use_random_address_space
-    ? "10.${random_integer.ip[0].result}.${random_integer.ip[1].result}.0/24"
-    : var.bootstrap_address_space
-  ]
+  address_space       = [var.address_space]
 }
 
 resource "azurerm_subnet" "shared" {
   name                 = "subnet-bootstrap-shared-${var.suffix}"
   resource_group_name  = azurerm_resource_group.bootstrap.name
   virtual_network_name = azurerm_virtual_network.bootstrap.name
-  address_prefixes     = [local.bootstrap_shared_address_space]
+  address_prefixes     = [var.address_space]
+  service_endpoints    = ["Microsoft.Storage"]
 }
 
 resource "azurerm_private_dns_zone" "all" {
@@ -70,10 +66,10 @@ resource "azurerm_network_security_group" "bootstrap" {
 }
 
 resource "azurerm_network_watcher_flow_log" "bootstrap" {
-  count                     = var.network_watcher != null
+  count                     = var.network_watcher_name != null ? 1 : 0
   name                      = "nw-log-bootstrap-${var.suffix}"
-  resource_group_name       = var.monitoring.network_watcher.resource_group_name
-  network_watcher_name      = var.monitoring.network_watcher.name
+  resource_group_name       = var.network_watcher_resource_group_name
+  network_watcher_name      = var.network_watcher_name
   network_security_group_id = azurerm_network_security_group.bootstrap.id
   storage_account_id        = azurerm_storage_account.bootstrap.id
   enabled                   = true
@@ -89,12 +85,5 @@ resource "azurerm_network_watcher_flow_log" "bootstrap" {
     workspace_region      = azurerm_log_analytics_workspace.bootstrap.location
     workspace_resource_id = azurerm_log_analytics_workspace.bootstrap.id
     interval_in_minutes   = 10
-  }
-
-  lifecycle {
-    precondition {
-      condition     = !var.accesses_real_data || var.monitoring.network_watcher != null
-      error_message = "Network watcher flow logs must be enabled with when accesses_real_data"
-    }
   }
 }

@@ -42,3 +42,35 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "github_runner_token" {
+  description = "Github persional access token with admin:org scopes to be able to register GH runners"
+  type        = string
+}
+
+variable "github_organization" {
+  description = "GitHub organisation in which to register this runner"
+  type        = string
+}
+
+variable "github_runner_version" {
+  description = "Release version of the GitHub runner to use e.g. v2.303.0"
+  type        = string
+}
+
+variable "address_space" {
+  description = "Address space for vnet. This must not overlap with any addresses that will be peered. e.g. 10.0.0.0/24"
+  type        = string
+}
+
+variable "network_watcher_name" {
+  description = "Name of the network watcher resource in which to add the flow logs"
+  type        = string
+  default     = null
+}
+
+variable "network_watcher_resource_group_name" {
+  description = "Resource group in which the network watcher exists"
+  type        = string
+  default     = null
+}

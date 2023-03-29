@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "bootstrap" {
   network_rules {
     default_action             = "Deny"
     bypass                     = ["AzureServices"]
-    virtual_network_subnet_ids = [azurerm_subnet.core_shared.id]
+    virtual_network_subnet_ids = [azurerm_subnet.shared.id]
   }
 
   blob_properties {
