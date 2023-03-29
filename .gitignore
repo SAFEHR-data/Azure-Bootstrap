@@ -26,3 +26,6 @@ override.tf.json
 
 # Exclude the top level config file
 config.tfvars
+
+# Exclude the terraform state in the public template repo
+*terraform.tfstate*

@@ -12,6 +12,7 @@ Utility for bootstrapping common Azure resources needed to store Terraform state
 cp config.sample.tfvars config.tfvars
 # manually edit config.tfvars
 sed '/config.tfvars/d' .gitignore
+sed '/terraform.tfstate/d' .gitignore
 ```
 
 3. `az login`
