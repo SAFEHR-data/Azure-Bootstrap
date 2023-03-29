@@ -12,6 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-suffix            = "tmptombootstrap"
-location          = "uksouth"
-gh_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
+variable "resource_group_name" {}
+variable "location" {}
+variable "shared_subnet_id" {}
+variable "github_runner_token" {}
+variable "github_organization" {}
+variable "github_runner_name" {}
+variable "gh_runner_version" {}

@@ -12,6 +12,23 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-suffix            = "tmptombootstrap"
-location          = "uksouth"
-gh_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
+data "template_file" "cloud_config" {
+
+  template = file("cloud-config.yaml")
+  vars = {
+    GITHUB_RUNNER_TOKEN = var.github_runner_token
+    GITHUB_ORGANIZATION = var.github_organization
+    GH_RUNNER_VERSION = var.gh_runner_version
+  }
+}
+
+data "template_cloudinit_config" "build_agent" {
+
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/cloud-config"
+    content      = data.template_file.data_import_vm_cloud_config[0].rendered
+  }
+}

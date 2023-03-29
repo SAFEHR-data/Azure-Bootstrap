@@ -12,6 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-suffix            = "tmptombootstrap"
-location          = "uksouth"
-gh_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
+locals {
+  gh_runner_vm_username = "adminuser"
+}
