@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "bootstrap" {
   account_tier                      = "Standard"
   account_replication_type          = "GRS"
   infrastructure_encryption_enabled = true
-  public_network_access_enabled     = false
+  public_network_access_enabled     = true  # Turned off post apply
   enable_https_traffic_only         = true
   tags                              = var.tags
 
@@ -27,6 +27,8 @@ resource "azurerm_storage_account" "bootstrap" {
     default_action             = "Deny"
     bypass                     = ["AzureServices"]
     virtual_network_subnet_ids = [azurerm_subnet.shared.id]
+    # The deployers IP exception will be removed post apply, but must be present to create the container
+    ip_rules                   = [chomp(data.http.local_ip.response_body)]
   }
 
   blob_properties {

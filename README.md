@@ -6,13 +6,10 @@ Utility for bootstrapping common Azure resources needed to store Terraform state
 
 1. Create a new private repository using this template repo, then clone and check it out.
 
-2. Copy the sample `config.sample.tfvars` to `config.tfvars` and edit to include a unique suffix (i.e. your org name) and choose an Azure region to deploy to
+2. Run the initalisation script
 
 ```bash
-cp config.sample.tfvars config.tfvars
-# manually edit config.tfvars
-sed '/config.tfvars/d' .gitignore
-sed '/terraform.tfstate/d' .gitignore
+./scripts/init.py
 ```
 
 3. `az login`

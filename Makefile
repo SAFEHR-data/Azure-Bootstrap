@@ -13,18 +13,23 @@
 # limitations under the License.
 
 SHELL:=/bin/bash
+MAKEFILE_FULLPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIR := $(dir $(MAKEFILE_FULLPATH))
 
 all: deploy
 
-deploy:  ## Deploy all bootstrap resources
-	./scripts/modify_storage_ip_exception.sh add \
-	cd ./deployment \
+deploy: az-login  ## Deploy all bootstrap resources
+	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
+	&& cd ${MAKEFILE_DIR}/deployment \
 	&& terraform init \
 	&& terraform apply -var-file="../config.tfvars" -auto-approve \
-	&& ./scripts/modify_storage_ip_exception.sh remove \
-	&& terraform state rm module.build-agent.random_password.gh_runner_vm
+	&& ${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh remove \
+	&& ${MAKEFILE_DIR}/scripts/clean_terraform_state.sh
 
-destroy: ## Destroy all bootstrap resources
-	./scripts/modify_storage_ip_exception.sh add \
-	&& cd ./deployment \
+destroy: az-login ## Destroy all bootstrap resources
+	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
+	&& cd ${MAKEFILE_DIR}/deployment \
 	&& terraform destroy -var-file="../config.tfvars" -auto-approve
+
+az-login:
+	${MAKEFILE_DIR}/scripts/az_login.sh

@@ -29,3 +29,4 @@ config.tfvars
 
 # Exclude the terraform state in the public template repo
 *terraform.tfstate*
+terraform.tfstate

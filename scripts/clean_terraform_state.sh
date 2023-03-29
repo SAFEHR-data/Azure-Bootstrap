@@ -15,23 +15,10 @@
 
 set -o errexit
 set -o pipefail
-set -o nounset
-# set -o xtrace
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-DEPLOYER_IP_ADDRESS="$(curl -s 'https://api64.ipify.org')"
 
-function storage_account_exists {
-    cd "${SCRIPT_DIR}/../deployment"
-    terraform state list | grep -q "azurerm_storage_account.bootstrap"
-    export STORAGE_ACCOUNT_NAME=$(terraform output storage_name | tr -d '"')
-}
-
-if storage_account_exists; then
-
-    echo -n "Modifying to [$1] storage account IP exception..."
-    az storage account network-rule "${1}" --account-name "$STORAGE_ACCOUNT_NAME" \
-        --ip-address "$DEPLOYER_IP_ADDRESS" > /dev/null
-    echo "done"
-    sleep 10  # Azure CLI does not wait long enough
-fi
+# Remove any admin passwords from the state
+STATE_FILEPATH="${SCRIPT_DIR}/../deployment/terraform.tfstate"
+content=$(jq 'del(.. | .admin_password?)' "$STATE_FILEPATH")
+echo -E "${content}" > "$STATE_FILEPATH"
