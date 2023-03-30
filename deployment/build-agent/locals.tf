@@ -14,4 +14,5 @@
 
 locals {
   gh_runner_vm_username = "adminuser"
+  gh_runner_label       = "gh-runner-${var.suffix}"
 }

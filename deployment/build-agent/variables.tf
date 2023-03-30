@@ -19,3 +19,4 @@ variable "shared_subnet_id" {}
 variable "github_runner_token" {}
 variable "github_organization" {}
 variable "github_runner_version" {}
+variable "github_runner_instances" {}

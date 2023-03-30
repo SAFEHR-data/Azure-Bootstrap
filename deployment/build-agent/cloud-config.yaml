@@ -55,12 +55,12 @@ write_files:
       cd /tmp/actions-runner/
 
       # See https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
-      # The GH_RUNNER_NAME must be unique within the repositry.
+      # The GH_RUNNER_NAME must be unique within the repository.
       ./config.sh --ephemeral \
           --url "https://github.com/${GITHUB_ORGANIZATION}" \
           --token "$REGISTRATION_TOKEN" \
           --name "$GITHUB_RUNNER_NAME" \
-          --labels "$GITHUB_RUNNER_NAME" \
+          --labels "${GITHUB_RUNNER_LABEL}" \
           --unattended \
           --disableupdate
 

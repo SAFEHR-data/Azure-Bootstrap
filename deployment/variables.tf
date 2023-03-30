@@ -58,6 +58,12 @@ variable "github_runner_version" {
   type        = string
 }
 
+variable "github_runner_instances" {
+  description = "The number of GitHub runner instances to deploy"
+  type        = number
+  default     = 1
+}
+
 variable "address_space" {
   description = "Address space for vnet. This must not overlap with any addresses that will be peered. e.g. 10.0.0.0/24"
   type        = string

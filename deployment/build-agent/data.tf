@@ -13,17 +13,17 @@
 #  limitations under the License.
 
 data "template_file" "cloud_config" {
-
   template = file("${path.module}/cloud-config.yaml")
+
   vars = {
     GITHUB_RUNNER_TOKEN   = var.github_runner_token
     GITHUB_ORGANIZATION   = var.github_organization
     GITHUB_RUNNER_VERSION = var.github_runner_version
+    GITHUB_RUNNER_LABEL   = local.gh_runner_label
   }
 }
 
 data "template_cloudinit_config" "build_agent" {
-
   gzip          = true
   base64_encode = true
 

@@ -27,13 +27,14 @@ resource "azurerm_log_analytics_workspace" "bootstrap" {
   tags                = var.tags
 }
 
-module "build-agent" {
-  source                = "./build-agent"
-  resource_group_name   = azurerm_resource_group.bootstrap.name
-  location              = azurerm_resource_group.bootstrap.location
-  suffix                = var.suffix
-  shared_subnet_id      = azurerm_subnet.shared.id
-  github_runner_token   = var.github_runner_token
-  github_organization   = var.github_organization
-  github_runner_version = var.github_runner_version
+module "build_agent" {
+  source                  = "./build-agent"
+  resource_group_name     = azurerm_resource_group.bootstrap.name
+  location                = azurerm_resource_group.bootstrap.location
+  suffix                  = var.suffix
+  shared_subnet_id        = azurerm_subnet.shared.id
+  github_runner_token     = var.github_runner_token
+  github_organization     = var.github_organization
+  github_runner_version   = var.github_runner_version
+  github_runner_instances = var.github_runner_instances
 }

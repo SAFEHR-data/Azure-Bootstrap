@@ -30,7 +30,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
   resource_group_name   = var.resource_group_name
   location              = var.location
   sku                   = "Standard_B2s"
-  instances             = 1
+  instances             = var.github_runner_instances
 
   admin_username = local.gh_runner_vm_username
   admin_password = random_password.gh_runner_vm.result

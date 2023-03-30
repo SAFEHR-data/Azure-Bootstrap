@@ -34,8 +34,8 @@ fi
 if storage_account_exists; then
 
     echo -n "Modifying to [$1] storage account IP exception..."
-    STORAGE_ACCOUNT_NAME=$(terraform output storage_name | tr -d '"')
-    RESOURCE_GROUP_NAME=$(terraform output rg_name | tr -d '"')
+    STORAGE_ACCOUNT_NAME=$(terraform output ci_storage_account | tr -d '"')
+    RESOURCE_GROUP_NAME=$(terraform output ci_resource_group | tr -d '"')
 
     if [ "$1" = "add" ]; then
         NETWORK_SWITCH="Enabled" 
