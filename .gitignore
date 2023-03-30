@@ -27,7 +27,7 @@ override.tf.json
 # REMOVE THE BELOW IN YOUR FORK TO CHECK IN STATE AND CONFIG
 # ==========================================================
 # Exclude the top level config file
-config.tfvars
+config.yaml
 # Exclude the terraform state in the public template repo
 *terraform.tfstate*
 terraform.tfstate

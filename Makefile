@@ -19,13 +19,7 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_FULLPATH))
 all: deploy
 
 deploy:  ## Deploy all bootstrap resources
-	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
-	&& cd ${MAKEFILE_DIR}/deployment \
-	&& terragrunt apply \
-	&& ${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh remove \
-	&& ${MAKEFILE_DIR}/scripts/clean_terraform_state.sh
+	cd ${MAKEFILE_DIR}/deployment && terragrunt apply
 
 destroy: ## Destroy all bootstrap resources
-	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
-	&& cd ${MAKEFILE_DIR}/deployment \
-	&& terragrunt destroy
+	cd ${MAKEFILE_DIR}/deployment && terragrunt destroy

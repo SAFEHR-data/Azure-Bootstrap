@@ -22,6 +22,12 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
 
 3. `az login`
 
-4. Create a Github PAT for registering runners. This PAT must have [admin:org](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) scopes and will be required when running `make`
+4. Create a fine-grained Github PAT for registering runners. This PAT must have [Organization Administration: Read and write](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) scopes and will be required when running `make`. Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
+
+    ```bash
+    export GITHUB_RUNNER_PAT=<your_token_here>
+    ```
+
+> Note: be conscious of the expiry time that you set. You can generate a new PAT at any time and have shorter expiries for security, but ensure that you re-deploy with the new PAT before the old one expires, otherwise your build agents could stop functioning.
 
 5. `make all`
