@@ -1,4 +1,3 @@
-#!/bin/bash
 #  Copyright (c) University College London Hospitals NHS Foundation Trust
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +11,12 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+---
+suffix: __CHANGE_ME__
+location: uksouth
+github_runner_version: v2.303.0  # see: https://github.com/actions/runner/releases/
+github_organization: __CHANGE_ME__
+address_space: 10.0.0.0/24
 
-set -o errexit
-set -o pipefail
-set -o nounset
-
-SUB_NAME=$(az account show --query name -o tsv)
-TENANT_ID=$(az account show --query tenantId -o tsv)
-
-if [ -z "$SUB_NAME" ]; then
-  echo -e "\n\e[31m»»» ⚠️ You are not logged in to Azure!"
-  exit 1
-fi
-
-echo -e "\e[34m»»» 🔨 \e[96mAzure details from logged on user \e[0m"
-echo -e "\e[34m»»»   • \e[96mSubscription: \e[33m$SUB_NAME\e[0m"
-echo -e "\e[34m»»»   • \e[96mTenant:       \e[33m$TENANT_ID\e[0m\n"
+network_watcher_name: NetworkWatcher_uksouth"  # Optional 
+network_watcher_resource_group_name: NetworkWatcherRG  # Optional

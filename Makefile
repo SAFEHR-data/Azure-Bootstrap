@@ -18,18 +18,14 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_FULLPATH))
 
 all: deploy
 
-deploy: az-login  ## Deploy all bootstrap resources
+deploy:  ## Deploy all bootstrap resources
 	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
 	&& cd ${MAKEFILE_DIR}/deployment \
-	&& terraform init \
-	&& terraform apply -var-file="../config.tfvars" -auto-approve \
+	&& terragrunt apply \
 	&& ${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh remove \
 	&& ${MAKEFILE_DIR}/scripts/clean_terraform_state.sh
 
-destroy: az-login ## Destroy all bootstrap resources
+destroy: ## Destroy all bootstrap resources
 	${MAKEFILE_DIR}/scripts/modify_ip_exceptions.sh add \
 	&& cd ${MAKEFILE_DIR}/deployment \
-	&& terraform destroy -var-file="../config.tfvars" -auto-approve
-
-az-login:
-	${MAKEFILE_DIR}/scripts/az_login.sh
+	&& terragrunt destroy

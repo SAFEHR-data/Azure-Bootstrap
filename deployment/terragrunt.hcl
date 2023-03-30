@@ -10,13 +10,14 @@
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
-#  limitations under the License.
+# limitations under the License.
 
-suffix                = "__CHANGE_ME__"
-location              = "uksouth"
-github_runner_version = "v2.303.0"  # see: https://github.com/actions/runner/releases/
-github_organization   = "__CHANGE_ME__"
-address_space         = "10.0.0.0/24"
+terraform {
+  extra_arguments "auto_approve" {
+    commands  = ["apply"]
+    arguments = ["-auto-approve"]
+  }
+}
 
-network_watcher_name                = "NetworkWatcher_uksouth" # Optional 
-network_watcher_resource_group_name = "NetworkWatcherRG"       # Optional
+# Generate Terraform variables from config.yaml file
+inputs = yamldecode(file("${get_repo_root()}/config.yaml"))
