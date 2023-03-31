@@ -2,7 +2,7 @@
 
 Utility for bootstrapping common Azure resources needed to store Terraform state, containers and configure build agents.
 
-## Pre-requisites
+## Prerequisites
 
 This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either running this repo from its [Devcontainer in VS Code](https://code.visualstudio.com/docs/devcontainers/containers) by selecting `Re-open in Container`, or that you have [Terraform](https://developer.hashicorp.com/terraform/downloads), [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) and the [az cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed on your local machine. 
 
