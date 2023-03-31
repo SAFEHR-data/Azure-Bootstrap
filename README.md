@@ -85,6 +85,8 @@ resource "azurerm_virtual_network_peering" "flowehr_to_bootstrap" {
 
 2. Configure your relevant GitHub Workflow files to use this (`${{ vars.CI_GITHUB_RUNNER_LABEL }}`) in any relevant job's `runs-on` parameter.
 
+If you're using these runners on a public repository, you'll also need to go to your Organization settings, and within *Actions/Runners/Runner Groups*, pick the group containing your runners (typically **Default**), then tick the box that says **Allow public repositories**.
+
 ### Storage & Azure Container Registry
 
 A key use-case for having storage and a container registry in a central CI/boostrap environment is for managing [Terraform state](https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage?tabs=azure-cli) and [Dev containers](https://containers.dev).
