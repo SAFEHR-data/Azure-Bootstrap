@@ -70,11 +70,12 @@ resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
   boot_diagnostics {}
 
   extension {
-    name                      = "AzureMonitorLinuxAgent"
-    publisher                 = "Microsoft.Azure.Monitor"
-    type                      = "AzureMonitorLinuxAgent"
-    type_handler_version      = "1.24"
-    automatic_upgrade_enabled = true
+    name                       = "AzureMonitorLinuxAgent"
+    publisher                  = "Microsoft.Azure.Monitor"
+    type                       = "AzureMonitorLinuxAgent"
+    type_handler_version       = "1.25"
+    automatic_upgrade_enabled  = true
+    auto_upgrade_minor_version = true
   }
 }
 
@@ -109,6 +110,7 @@ resource "azurerm_monitor_data_collection_rule" "gh_runner" {
     syslog {
       facility_names = ["*"]
       log_levels     = ["*"]
+      streams        = ["Microsoft-Syslog"]
       name           = "runner-syslog"
     }
 

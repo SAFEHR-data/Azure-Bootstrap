@@ -50,19 +50,6 @@ resource "azurerm_network_security_group" "bootstrap" {
   name                = "nsg-bootstrap-${var.suffix}"
   location            = azurerm_resource_group.bootstrap.location
   resource_group_name = azurerm_resource_group.bootstrap.name
-
-  security_rule {
-    name                       = "deny-internet-outbound-override"
-    description                = "Blocks outbound internet traffic unless an explicit outbound-allow rule exists. Overrides the default rule 65001"
-    priority                   = 2000
-    access                     = "Deny"
-    protocol                   = "*"
-    direction                  = "Outbound"
-    destination_address_prefix = "Internet"
-    destination_port_range     = 443
-    source_address_prefix      = "*"
-    source_port_range          = "*"
-  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "shared" {

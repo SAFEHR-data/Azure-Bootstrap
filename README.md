@@ -42,3 +42,58 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
     ```bash
     make
     ```
+
+6. After successfully deploying, the values you'll need to use the bootstrap environment for your CI deployments are printed to the console. Make sure you capture these and use for the next section.
+
+
+## Using for CI
+
+Using the values outputted from the deployment, you can now configure your other repositories' GitHub actions to use the bootstrap resources.
+
+### Virtual Network Peering
+
+The first thing you need to do in a deployment of resources you wish to be accessible by the bootstrap runners (and anything running in them from your actions, like Terraform) is to [peer](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview) that deployment's virtual network with the bootstrap vnet.
+
+You can do this using the outputted `CI_PEERING_VNET` and `CI_RESOURCE_GROUP` values, which is the bootstrap's vnet name and resource group name. In Terraform, it would look something like this:
+
+    ```hcl
+    data "azurerm_virtual_network" "bootstrap" {
+        name                = var.ci_vnet_name # Populated from CI_PEERING_VNET
+        resource_group_name = var.ci_rg_name # Populated from CI_RESOURCE_GROUP
+    }
+
+    resource "azurerm_virtual_network_peering" "bootstrap_to_flowehr" {
+        name                      = "peer-bootstrap-to-flwr"
+        resource_group_name       = azurerm_resource_group.flwr.name
+        virtual_network_name      = var.ci_vnet_name
+        remote_virtual_network_id = azurerm_virtual_network.flwr.name
+    }
+
+    resource "azurerm_virtual_network_peering" "flowehr_to_bootstrap" {
+        name                      = "peer-flwr-to-bootstrap"
+        resource_group_name       = azurerm_resource_group.flwr.name
+        virtual_network_name      = azurerm_virtual_network.flwr.name
+        remote_virtual_network_id = data.azurerm_virtual_network.bootstrap.id
+    }
+    ```
+
+### GitHub Runners
+
+1. Navigate to your GitHub Organization's settings, then Actions, then create a new organization-scoped variable called `CI_GITHUB_RUNNER_LABEL` and paste the corresponding value from the bootstrap output.
+
+> You can do this as a repository-scoped variable instead if you prefer, but will need to make sure you've defined it in every repository in which you wish to populate the runner's label.
+
+2. Configure your relevant GitHub Workflow files to use this (`${{ vars.CI_GITHUB_RUNNER_LABEL }}`) in any relevant job's `runs-on` parameter.
+
+### Storage & Azure Container Registry
+
+A key use-case for having storage and a container registry in a central CI/boostrap environment is for managing [Terraform state](https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage?tabs=azure-cli) and [Dev containers](https://containers.dev).
+
+For an example of how this is used, see the [UCLH-Foundry/FlowEHR repo](https://github.com/UCLH-Foundry/FlowEHR). The `CI_CONTAINER_REGISTRY` and `CI_STORAGE_ACCOUNT` values are passed in via a GitHub environment and used by the workflows to store dev containers Terraform state for the FlowEHR infrastructure deployments.
+
+
+## Security considerations
+
+We recommend peering the Bootstrap VNet with a hub network in your organization containing a Network Virtual Appliance (firewall), and configuring your private fork of this repo to implement [User Defined Routes](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview) to direct all traffic to that firewall.
+
+As part of this, ensure that you have whitelisted the appropriate domains that the GitHub runners required to function. See [here](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners#communication-requirements) for details.
