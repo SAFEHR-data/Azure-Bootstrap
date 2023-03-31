@@ -66,4 +66,64 @@ resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
       subnet_id = var.shared_subnet_id
     }
   }
+
+  boot_diagnostics {}
+
+  extension {
+    name                      = "AzureMonitorLinuxAgent"
+    publisher                 = "Microsoft.Azure.Monitor"
+    type                      = "AzureMonitorLinuxAgent"
+    type_handler_version      = "1.24"
+    automatic_upgrade_enabled = true
+  }
+}
+
+resource "azurerm_monitor_data_collection_rule" "gh_runner" {
+  name                = "dcr-gh-runner-${var.suffix}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  description         = "GH runner logs and metrics"
+
+  destinations {
+    log_analytics {
+      workspace_resource_id = var.log_analytics_workspace_id
+      name                  = "logs"
+    }
+
+    azure_monitor_metrics {
+      name = "metrics"
+    }
+  }
+
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics"]
+    destinations = ["metrics"]
+  }
+
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics", "Microsoft-Syslog", "Microsoft-Perf"]
+    destinations = ["logs"]
+  }
+
+  data_sources {
+    syslog {
+      facility_names = ["*"]
+      log_levels     = ["*"]
+      name           = "runner-syslog"
+    }
+
+    performance_counter {
+      streams                       = ["Microsoft-Perf", "Microsoft-InsightsMetrics"]
+      sampling_frequency_in_seconds = 60
+      counter_specifiers            = ["Processor(*)\\% Processor Time"]
+      name                          = "runner-perfcounter"
+    }
+  }
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "gh_runner" {
+  name                    = "dcra-gh-runner-${var.suffix}"
+  target_resource_id      = azurerm_linux_virtual_machine_scale_set.gh_runner.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.gh_runner.id
+  description             = "GH runner scale set"
 }

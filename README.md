@@ -20,9 +20,16 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
     terraform.tfstate
     ```
 
-3. `az login`
+3. Log into Azure and optionally set a different subscription from your default:
 
-4. Create a fine-grained Github PAT for registering runners. This PAT must have [Organization Administration: Read and write](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) scopes and will be required when running `make`. Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
+    ```bash
+    az login
+    az account set -s <YOUR_SUBSCRIPTION_ID>
+    ```
+
+4. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have [Organization Administration: Read and write](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) scopes and will be required when running `make`. 
+
+    Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
 
     ```bash
     export GITHUB_RUNNER_PAT=<your_token_here>
@@ -30,4 +37,8 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
 
 > Note: be conscious of the expiry time that you set. You can generate a new PAT at any time and have shorter expiries for security, but ensure that you re-deploy with the new PAT before the old one expires, otherwise your build agents could stop functioning.
 
-5. `make all`
+5. Deploy the bootstrap resources:
+
+    ```bash
+    make
+    ```

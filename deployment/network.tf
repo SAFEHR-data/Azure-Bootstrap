@@ -47,7 +47,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "all" {
 }
 
 resource "azurerm_network_security_group" "bootstrap" {
-  name                = "nsg-default-bootstrap-${var.suffix}"
+  name                = "nsg-bootstrap-${var.suffix}"
   location            = azurerm_resource_group.bootstrap.location
   resource_group_name = azurerm_resource_group.bootstrap.name
 
@@ -63,6 +63,11 @@ resource "azurerm_network_security_group" "bootstrap" {
     source_address_prefix      = "*"
     source_port_range          = "*"
   }
+}
+
+resource "azurerm_subnet_network_security_group_association" "shared" {
+  subnet_id                 = azurerm_subnet.shared.id
+  network_security_group_id = azurerm_network_security_group.bootstrap.id
 }
 
 resource "azurerm_network_watcher_flow_log" "bootstrap" {

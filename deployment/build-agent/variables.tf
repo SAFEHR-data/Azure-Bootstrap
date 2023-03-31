@@ -16,6 +16,7 @@ variable "resource_group_name" {}
 variable "location" {}
 variable "suffix" {}
 variable "shared_subnet_id" {}
+variable "log_analytics_workspace_id" {}
 variable "github_runner_token" {}
 variable "github_organization" {}
 variable "github_runner_version" {}
