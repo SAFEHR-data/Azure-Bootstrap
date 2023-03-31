@@ -27,7 +27,7 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
     az account set -s <YOUR_SUBSCRIPTION_ID>
     ```
 
-4. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have [Organization Administration: Read and write](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization) scopes and will be required when running `make`. 
+4. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have **Organization Administration: Read and write** and **Self-hosted Runners: Read and write** scopes (as per the [docs](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization)) and will be required when running `make`. 
 
     Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
 
