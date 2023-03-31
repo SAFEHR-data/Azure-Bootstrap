@@ -14,4 +14,8 @@
 
 locals {
   suffix_truncated = replace(replace(var.suffix, "-", ""), "_", "")
+
+  private_dns_zones = {
+    blob     = "privatelink.blob.core.windows.net"
+  }
 }

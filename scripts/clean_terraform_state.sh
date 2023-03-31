@@ -1,3 +1,4 @@
+#!/bin/bash
 #  Copyright (c) University College London Hospitals NHS Foundation Trust
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +13,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-output "ci_resource_group" {
-  value = azurerm_resource_group.bootstrap.name
-}
+set -o errexit
+set -o pipefail
 
-output "ci_container_registry" {
-  value = azurerm_container_registry.bootstrap.name
-}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-output "ci_storage_account" {
-  value = azurerm_storage_account.bootstrap.name
-}
+# Remove any admin passwords from the state
+STATE_FILEPATH="${SCRIPT_DIR}/../deployment/terraform.tfstate"
+content=$(jq 'del(.. | .admin_password?)' "$STATE_FILEPATH")
 
-output "ci_peering_vnet" {
-  value = azurerm_virtual_network.bootstrap.name
-}
+# Remove the GitHub PAT from state
+content=$(sed "s/$GITHUB_RUNNER_PAT/PAT_TOKEN_OBFUSCATED/g" "$STATE_FILEPATH")
 
-output "ci_github_runner_label" {
-  value = module.build_agent.github_runner_label
-}
+echo -E "${content}" > "$STATE_FILEPATH"

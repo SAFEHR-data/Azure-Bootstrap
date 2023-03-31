@@ -12,95 +12,120 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-variable "devcontainer_tag" {
-  type        = string
-  description = "Tag for the devcontainer image"
-  default     = ""
+resource "random_password" "gh_runner_vm" {
+  length           = 32
+  lower            = true
+  min_lower        = 1
+  upper            = true
+  min_upper        = 1
+  numeric          = true
+  min_numeric      = 1
+  special          = true
+  min_special      = 1
+  override_special = "_%@"
 }
 
-variable "devcontainer_image" {
-  type        = string
-  description = "Name of the devcontainer image i.e. aregistry.azurecr.io/<image-name>:tag"
-  default     = ""
-}
+resource "azurerm_linux_virtual_machine_scale_set" "gh_runner" {
+  name                  = "vm-gh-runner-${var.suffix}"
+  resource_group_name   = var.resource_group_name
+  location              = var.location
+  sku                   = "Standard_B2s"
+  instances             = var.github_runner_instances
 
-variable "github_runner_name" {
-  type        = string
-  description = "Name of the GitHub runner that will be created"
-  default     = ""
-}
+  admin_username = local.gh_runner_vm_username
+  admin_password = random_password.gh_runner_vm.result
 
-variable "github_runner_token" {
-  type        = string
-  description = "GitHub token with permissions to register a runner on this repository"
-}
+  disable_password_authentication = false
 
-variable "github_repository" {
-  type        = string
-  description = "Github repository in which to create the build agent. e.g. UCLH-Foundry/FlowEHR"
-  default     = ""
-}
+  custom_data = data.template_cloudinit_config.build_agent.rendered
 
-resource "azurerm_container_group" "build_agent" {
-  count               = var.tf_in_automation ? 1 : 0
-  name                = "cg-build-agent-${var.naming_suffix}"
-  resource_group_name = azurerm_resource_group.core.name
-  location            = azurerm_resource_group.core.location
-  subnet_ids          = [azurerm_subnet.core_container.id]
-  ip_address_type     = "Private"
-  os_type             = "Linux"
-  restart_policy      = "Never"
+  os_disk {
+    disk_size_gb         = 128
+    caching              = "None"
+    storage_account_type = "Standard_LRS"
+  }
 
-  container {
-    name   = "devcontainer"
-    image  = "${data.azurerm_container_registry.devcontainer[0].login_server}/${var.devcontainer_image}:${var.devcontainer_tag}"
-    cpu    = "1"
-    memory = "4"
-    # commands = ["/bin/sleep", "infinity"] # Keep container runniner for debuging
-    commands = ["/bin/bash", "-c", "'/tmp/library-scripts/start-gh-runner.sh'"]
+  source_image_reference {
+    offer     = "0001-com-ubuntu-server-jammy"
+    publisher = "Canonical"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
 
-    environment_variables = {
-      GITHUB_REPOSITORY  = var.github_repository
-      GITHUB_RUNNER_NAME = var.github_runner_name
-    }
+  identity {
+    type = "SystemAssigned"
+  }
 
-    secure_environment_variables = {
-      GITHUB_RUNNER_TOKEN = var.github_runner_token
-    }
+  network_interface {
+    name    = "nic-gh-runner-vm-${var.suffix}"
+    primary = true
 
-    # Needs to be defined but is unused
-    ports {
-      port     = 22
-      protocol = "TCP"
+    ip_configuration {
+      name      = "internal"
+      primary   = true
+      subnet_id = var.shared_subnet_id
     }
   }
 
-  image_registry_credential {
-    username = data.azurerm_container_registry.devcontainer[0].admin_username
-    password = data.azurerm_container_registry.devcontainer[0].admin_password
-    server   = data.azurerm_container_registry.devcontainer[0].login_server
-  }
+  boot_diagnostics {}
 
-  # The container may change post core deploy but the deployment is running there so ignore
-  lifecycle {
-    ignore_changes = [container]
+  extension {
+    name                       = "AzureMonitorLinuxAgent"
+    publisher                  = "Microsoft.Azure.Monitor"
+    type                       = "AzureMonitorLinuxAgent"
+    type_handler_version       = "1.25"
+    automatic_upgrade_enabled  = true
+    auto_upgrade_minor_version = true
   }
 }
 
-## TF ensure container is running as it may have been deployed and is now stopped
-resource "null_resource" "ensure_build_agent_is_running" {
-  count = var.tf_in_automation ? 1 : 0
+resource "azurerm_monitor_data_collection_rule" "gh_runner" {
+  name                = "dcr-gh-runner-${var.suffix}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  description         = "GH runner logs and metrics"
 
-  triggers = {
-    always_run = timestamp()
+  destinations {
+    log_analytics {
+      workspace_resource_id = var.log_analytics_workspace_id
+      name                  = "logs"
+    }
+
+    azure_monitor_metrics {
+      name = "metrics"
+    }
   }
 
-  provisioner "local-exec" {
-    command = <<EOF
-    az container start \
-      --name ${azurerm_container_group.build_agent[0].name} \
-      --resource-group ${azurerm_resource_group.core.name} \
-    || true
-    EOF
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics"]
+    destinations = ["metrics"]
   }
+
+  data_flow {
+    streams      = ["Microsoft-InsightsMetrics", "Microsoft-Syslog", "Microsoft-Perf"]
+    destinations = ["logs"]
+  }
+
+  data_sources {
+    syslog {
+      facility_names = ["*"]
+      log_levels     = ["*"]
+      streams        = ["Microsoft-Syslog"]
+      name           = "runner-syslog"
+    }
+
+    performance_counter {
+      streams                       = ["Microsoft-Perf", "Microsoft-InsightsMetrics"]
+      sampling_frequency_in_seconds = 60
+      counter_specifiers            = ["Processor(*)\\% Processor Time"]
+      name                          = "runner-perfcounter"
+    }
+  }
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "gh_runner" {
+  name                    = "dcra-gh-runner-${var.suffix}"
+  target_resource_id      = azurerm_linux_virtual_machine_scale_set.gh_runner.id
+  data_collection_rule_id = azurerm_monitor_data_collection_rule.gh_runner.id
+  description             = "GH runner scale set"
 }

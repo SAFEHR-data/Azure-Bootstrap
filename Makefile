@@ -13,8 +13,22 @@
 # limitations under the License.
 
 SHELL:=/bin/bash
+MAKEFILE_FULLPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIR := $(dir $(MAKEFILE_FULLPATH))
 
-all: ## Deploy all bootstrap resources
-	cd ./deployment \
-	&& terraform init \
-	&& terraform apply -var-file="../config.tfvars" -auto-approve
+target_title = @echo -e "\n\e[34m»»» 🥾\e[96m$(1)\e[0m...\n"
+
+all: deploy
+
+deploy:  ## Deploy all bootstrap resources
+	$(call target_title, "Deploying Azure Bootstrap") \
+	&& cd ${MAKEFILE_DIR}/deployment \
+	&& terragrunt apply \
+	&& printf "\n 🥾 Use the below values for your GitHub configuration:\033[36m\n\n" \
+	&& terraform output -json \
+	  | jq -r 'with_entries(.value |= .value) | to_entries | map("\(.key | ascii_upcase)=\(.value | tostring)") |.[]'
+
+destroy: ## Destroy all bootstrap resources
+	$(call target_title, "Destroying Azure Bootstrap") \
+	&& cd ${MAKEFILE_DIR}/deployment \
+	&& terragrunt destroy

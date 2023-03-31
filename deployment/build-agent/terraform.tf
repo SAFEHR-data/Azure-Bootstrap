@@ -12,5 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-suffix   = "uclh-dev"
-location = "uksouth"
+terraform {
+  required_providers {
+    azurerm = {
+        source  = "hashicorp/azurerm"
+        version = "3.47.0"
+    }
+
+    template = {
+      source  = "hashicorp/template"
+      version = "2.2.0"
+    }
+  }
+}

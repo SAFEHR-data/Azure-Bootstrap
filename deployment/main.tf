@@ -15,25 +15,27 @@
 resource "azurerm_resource_group" "bootstrap" {
   name     = "rg-bootstrap-${var.suffix}"
   location = var.location
+  tags     = var.tags
 }
 
-resource "azurerm_storage_account" "bootstrap" {
-  name                     = "stgbtstr${local.suffix_truncated}"
-  resource_group_name      = azurerm_resource_group.bootstrap.name
-  location                 = azurerm_resource_group.bootstrap.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-resource "azurerm_storage_container" "tfstate" {
-  name                 = "tfstate"
-  storage_account_name = azurerm_storage_account.bootstrap.name
-}
-
-resource "azurerm_container_registry" "bootstrap" {
-  name                = "acrbtstr${local.suffix_truncated}"
+resource "azurerm_log_analytics_workspace" "bootstrap" {
+  name                = "log-bootstrap-${var.suffix}"
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
-  sku                 = "Basic"
-  admin_enabled       = true
+  sku                 = "PerGB2018"
+  retention_in_days   = 90
+  tags                = var.tags
+}
+
+module "build_agent" {
+  source                     = "./build-agent"
+  resource_group_name        = azurerm_resource_group.bootstrap.name
+  location                   = azurerm_resource_group.bootstrap.location
+  suffix                     = var.suffix
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.bootstrap.id
+  shared_subnet_id           = azurerm_subnet.shared.id
+  github_runner_token        = var.github_runner_token
+  github_organization        = var.github_organization
+  github_runner_version      = var.github_runner_version
+  github_runner_instances    = var.github_runner_instances
 }

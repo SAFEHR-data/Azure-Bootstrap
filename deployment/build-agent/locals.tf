@@ -12,22 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-output "ci_resource_group" {
-  value = azurerm_resource_group.bootstrap.name
-}
-
-output "ci_container_registry" {
-  value = azurerm_container_registry.bootstrap.name
-}
-
-output "ci_storage_account" {
-  value = azurerm_storage_account.bootstrap.name
-}
-
-output "ci_peering_vnet" {
-  value = azurerm_virtual_network.bootstrap.name
-}
-
-output "ci_github_runner_label" {
-  value = module.build_agent.github_runner_label
+locals {
+  gh_runner_vm_username = "adminuser"
+  gh_runner_label       = "gh-runner-${var.suffix}"
 }
