@@ -21,4 +21,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Remove any admin passwords from the state
 STATE_FILEPATH="${SCRIPT_DIR}/../deployment/terraform.tfstate"
 content=$(jq 'del(.. | .admin_password?)' "$STATE_FILEPATH")
+
+# Remove the GitHub PAT from state
+content=$(sed "s/$GITHUB_RUNNER_PAT/PAT_TOKEN_OBFUSCATED/g" "$STATE_FILEPATH")
+
 echo -E "${content}" > "$STATE_FILEPATH"
