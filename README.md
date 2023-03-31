@@ -1,4 +1,4 @@
-# Azure-Bootstrap
+# 🥾 Azure-Bootstrap
 
 Utility for bootstrapping common Azure resources needed to store Terraform state, containers and configure build agents.
 
@@ -56,26 +56,26 @@ The first thing you need to do in a deployment of resources you wish to be acces
 
 You can do this using the outputted `CI_PEERING_VNET` and `CI_RESOURCE_GROUP` values, which is the bootstrap's vnet name and resource group name. In Terraform, it would look something like this:
 
-    ```hcl
-    data "azurerm_virtual_network" "bootstrap" {
-        name                = var.ci_vnet_name # Populated from CI_PEERING_VNET
-        resource_group_name = var.ci_rg_name # Populated from CI_RESOURCE_GROUP
-    }
+```hcl
+data "azurerm_virtual_network" "bootstrap" {
+    name                = var.ci_vnet_name # Populated from CI_PEERING_VNET
+    resource_group_name = var.ci_rg_name # Populated from CI_RESOURCE_GROUP
+}
 
-    resource "azurerm_virtual_network_peering" "bootstrap_to_flowehr" {
-        name                      = "peer-bootstrap-to-flwr"
-        resource_group_name       = azurerm_resource_group.flwr.name
-        virtual_network_name      = var.ci_vnet_name
-        remote_virtual_network_id = azurerm_virtual_network.flwr.name
-    }
+resource "azurerm_virtual_network_peering" "bootstrap_to_flowehr" {
+    name                      = "peer-bootstrap-to-flwr"
+    resource_group_name       = azurerm_resource_group.flwr.name
+    virtual_network_name      = var.ci_vnet_name
+    remote_virtual_network_id = azurerm_virtual_network.flwr.name
+}
 
-    resource "azurerm_virtual_network_peering" "flowehr_to_bootstrap" {
-        name                      = "peer-flwr-to-bootstrap"
-        resource_group_name       = azurerm_resource_group.flwr.name
-        virtual_network_name      = azurerm_virtual_network.flwr.name
-        remote_virtual_network_id = data.azurerm_virtual_network.bootstrap.id
-    }
-    ```
+resource "azurerm_virtual_network_peering" "flowehr_to_bootstrap" {
+    name                      = "peer-flwr-to-bootstrap"
+    resource_group_name       = azurerm_resource_group.flwr.name
+    virtual_network_name      = azurerm_virtual_network.flwr.name
+    remote_virtual_network_id = data.azurerm_virtual_network.bootstrap.id
+}
+```
 
 ### GitHub Runners
 
