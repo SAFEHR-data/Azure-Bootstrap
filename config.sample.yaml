@@ -14,7 +14,7 @@
 ---
 suffix: __CHANGE_ME__
 location: uksouth
-github_runner_version: v2.303.0  # see: https://github.com/actions/runner/releases/
+github_runner_version: 2.303.0  # see: https://github.com/actions/runner/releases/ (exclude the v)
 github_runner_instances: 1
 github_organization: __CHANGE_ME__
 address_space: 10.0.0.0/24

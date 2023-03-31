@@ -97,3 +97,14 @@ For an example of how this is used, see the [UCLH-Foundry/FlowEHR repo](https://
 We recommend peering the Bootstrap VNet with a hub network in your organization containing a Network Virtual Appliance (firewall), and configuring your private fork of this repo to implement [User Defined Routes](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview) to direct all traffic to that firewall.
 
 As part of this, ensure that you have whitelisted the appropriate domains that the GitHub runners required to function. See [here](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners#communication-requirements) for details.
+
+
+## Troubleshooting
+
+### GitHub Runner not registering
+
+If you've deployed and can't see a runner registration in your Organization's settings (under the Actions/Runners section), it might have failed registration. You can investigate this by finding the Virtual Machine Scale Set within the bootstrap resource group you've deployed, clicking **Instances**, clicking the first VM in the list (if you have multiple), then selecting **Boot Diagnostics**.
+
+In the **Serial Log** tab you'll see the boot log. Near the bottom in the `cloud-init` output you should see `Registering GH runner..`. Below that will be any output related to the API call to GitHub to try and register the runner. If it's a 403, you've likely not given the right scopes to your PAT. Create a new one and ensure it has the right permissions (see Getting Started), export it as an env var and then re-run bootstrap deployment.
+
+If you see some connectivity issues, it's likely that outbound traffic is being blocked to GitHub. Ensure if you have NSGs or a firewall in place that the [appropriate domains and IPs](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners#communication-requirements) are whitelisted.

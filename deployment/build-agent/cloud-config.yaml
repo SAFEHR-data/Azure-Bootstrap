@@ -37,7 +37,7 @@ write_files:
       # See: https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization
       REGISTRATION_TOKEN=$(curl \
         -X POST \
-        --fail \
+        --verbose \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${GITHUB_RUNNER_TOKEN}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -76,7 +76,7 @@ packages:
 runcmd:
   - export DEBIAN_FRONTEND=noninteractive
   - mkdir -p /tmp/actions-runner
-  - curl -o runner.tar.gz -L https://github.com/actions/runner/releases/download/${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-2.302.1.tar.gz
+  - curl -o runner.tar.gz -L https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz
   - tar xzf runner.tar.gz -C /tmp/actions-runner
   - rm runner.tar.gz
   - bash /start_gh_runner.sh
