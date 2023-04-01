@@ -21,6 +21,29 @@ apt:
         https://packages.microsoft.com/repos/azure-cli/ $RELEASE main
       keyid: BC528686B50D79E339D3721CEB3E94ADBE1229CF
       keyserver: hkp://keyserver.ubuntu.com:80
+    docker.list:
+      source: deb [arch=amd64]
+        https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      keyserver: hkp://keyserver.ubuntu.com:80
+    node.list:
+      source: deb [signed-by=$KEY_FILE]
+        https://deb.nodesource.com/node_18.x $RELEASE main
+      keyid: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
+
+packages:
+  - docker-ce
+  - docker-ce-cli
+  - azure-cli
+  - nodejs
+  - build-essential
+
+groups:
+  - docker
+
+system_info:
+  default_user:
+    groups: [docker]
 
 write_files:
   - content: |
@@ -56,22 +79,34 @@ write_files:
 
       # See https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
       # The GH_RUNNER_NAME must be unique within the repository.
-      ./config.sh --ephemeral \
+      ./config.sh \
           --url "https://github.com/${GITHUB_ORGANIZATION}" \
           --token "$REGISTRATION_TOKEN" \
           --name "$GITHUB_RUNNER_NAME" \
           --labels "${GITHUB_RUNNER_LABEL}" \
           --unattended \
-          --disableupdate
+          --replace
 
-      ./run.sh
+      # Install as a service and start it
+      sudo ./svc.sh install
+      sudo ./svc.sh start
+
     owner: root:root
     path: /start_gh_runner.sh
     permissions: '0744'
 
-packages:
-  - azure-cli
-  - gcc
+  # An hourly cron job to have docker free disk space
+  - path: /etc/cron.hourly/docker-prune
+    content: |
+      #!/bin/bash
+      set -o errexit
+      used_percent=$(df / --output=pcent | tail -1 | sed 's/[^0-9]//g')
+      echo "Used disk space percent: $${used_percent}"
+      if (( used_percent > 75 )); then
+        echo "Free space too low, pruning..."
+        docker system prune -f
+      fi
+    permissions: '0755'
 
 runcmd:
   - export DEBIAN_FRONTEND=noninteractive
