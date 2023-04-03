@@ -20,6 +20,7 @@ data "template_file" "cloud_config" {
     GITHUB_ORGANIZATION   = var.github_organization
     GITHUB_RUNNER_VERSION = var.github_runner_version
     GITHUB_RUNNER_LABEL   = local.gh_runner_label
+    USERNAME              = local.gh_runner_vm_username
   }
 }
 

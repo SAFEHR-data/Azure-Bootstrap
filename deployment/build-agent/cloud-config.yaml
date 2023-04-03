@@ -26,16 +26,11 @@ apt:
         https://download.docker.com/linux/ubuntu $RELEASE stable
       keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
       keyserver: hkp://keyserver.ubuntu.com:80
-    node.list:
-      source: deb [signed-by=$KEY_FILE]
-        https://deb.nodesource.com/node_18.x $RELEASE main
-      keyid: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
 
 packages:
   - docker-ce
   - docker-ce-cli
   - azure-cli
-  - nodejs
   - build-essential
 
 groups:
@@ -43,7 +38,7 @@ groups:
 
 system_info:
   default_user:
-    groups: [docker]
+    groups: [sudo, docker]
 
 write_files:
   - content: |
@@ -51,6 +46,12 @@ write_files:
       set -o errexit
       set -o pipefail
       set -o nounset
+
+      # Install Node as the runner user to ensure no permissions errors when installing packages
+      echo "Installing Node.js..."
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+      source ~/.nvm/nvm.sh
+      nvm install node --lts 
 
       echo "Registering GH runner.."
 
@@ -74,26 +75,23 @@ write_files:
         exit 1
       fi
 
-      export RUNNER_ALLOW_RUNASROOT="1"
-      cd /tmp/actions-runner/
-
       # See https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners
       # The GH_RUNNER_NAME must be unique within the repository.
+      cd /home/runner/actions-runner/
       ./config.sh \
-          --url "https://github.com/${GITHUB_ORGANIZATION}" \
-          --token "$REGISTRATION_TOKEN" \
-          --name "$GITHUB_RUNNER_NAME" \
-          --labels "${GITHUB_RUNNER_LABEL}" \
-          --unattended \
-          --replace
+        --url "https://github.com/${GITHUB_ORGANIZATION}" \
+        --token "$REGISTRATION_TOKEN" \
+        --name "$GITHUB_RUNNER_NAME" \
+        --labels "${GITHUB_RUNNER_LABEL}" \
+        --unattended \
+        --replace
 
       # Install as a service and start it
       sudo ./svc.sh install
       sudo ./svc.sh start
 
-    owner: root:root
     path: /start_gh_runner.sh
-    permissions: '0744'
+    permissions: '0775'
 
   # An hourly cron job to have docker free disk space
   - path: /etc/cron.hourly/docker-prune
@@ -109,9 +107,12 @@ write_files:
     permissions: '0755'
 
 runcmd:
+  # Download runner and unpack to runner user directory (service will run as user)
   - export DEBIAN_FRONTEND=noninteractive
-  - mkdir -p /tmp/actions-runner
+  - mkdir -p /home/runner/actions-runner
   - curl -o runner.tar.gz -L https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz
-  - tar xzf runner.tar.gz -C /tmp/actions-runner
+  - tar xzf runner.tar.gz -C /home/runner/actions-runner
   - rm runner.tar.gz
-  - bash /start_gh_runner.sh
+
+  # Run the start runner script as the runner user
+  - su -c /start_gh_runner.sh ${USERNAME}

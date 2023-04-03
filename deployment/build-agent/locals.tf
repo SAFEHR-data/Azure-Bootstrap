@@ -13,6 +13,6 @@
 #  limitations under the License.
 
 locals {
-  gh_runner_vm_username = "adminuser"
+  gh_runner_vm_username = "runner"
   gh_runner_label       = "gh-runner-${var.suffix}"
 }
