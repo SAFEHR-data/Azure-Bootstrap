@@ -14,7 +14,7 @@
 
 terraform {
   before_hook "add_ip_exceptions" {
-    commands     = ["apply"]
+    commands     = ["apply", "destroy"]
     execute      = ["${get_repo_root()}/scripts/modify_ip_exceptions.sh", "add"]
   }
 
