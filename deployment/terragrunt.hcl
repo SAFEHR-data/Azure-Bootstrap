@@ -37,6 +37,4 @@ terraform {
 }
 
 # Generate Terraform variables from config.yaml file
-inputs = merge(yamldecode(file("${get_repo_root()}/config.yaml")), {
-  github_runner_token = get_env("GITHUB_RUNNER_PAT")
-})
+inputs = yamldecode(file("${get_repo_root()}/config.yaml"))

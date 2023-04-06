@@ -35,21 +35,19 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
     az account set -s <YOUR_SUBSCRIPTION_ID>
     ```
 
-5. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have **Organization Administration: Read and write** and **Self-hosted Runners: Read and write** scopes (as per the [docs](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization)) and will be required when running `make`. 
+5. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have **Organization Administration: Read and write** and **Self-hosted Runners: Read and write** scopes (as per the [docs](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization)).
 
-    Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
+    Copy the value; you will be prompted for this by Terraform when running `make` (or you can export it as an environment variable called `TFVAR_github_runner_token`).
 
-    ```bash
-    export GITHUB_RUNNER_PAT=<your_token_here>
-    ```
-
-> Note: be conscious of the expiry time that you set. You can generate a new PAT at any time and have shorter expiries for security, but ensure that you re-deploy with the new PAT before the old one expires, otherwise your build agents could stop functioning.
+    > Note: be conscious of the expiry time that you set. You can generate a new PAT at any time and have shorter expiries for security, but ensure that you re-deploy with the new PAT before the old one expires, otherwise your build agents could stop functioning.
 
 6. Deploy the bootstrap resources:
 
     ```bash
     make
     ```
+
+    When prompted, enter your GitHub PAT token (if you didn't export it as an env var).
 
 7. After successfully deploying, the values you'll need to use the bootstrap environment for your CI deployments are printed to the console. Make sure you capture these and use for the next section.
 

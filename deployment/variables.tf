@@ -17,8 +17,8 @@ variable "suffix" {
   type        = string
 
   validation {
-    condition     = length(var.suffix) <= 12
-    error_message = "Must be 12 chars or less"
+    condition     = length(var.suffix) <= 16
+    error_message = "Must be 16 chars or less"
   }
 
   validation {
