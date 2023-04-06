@@ -13,9 +13,11 @@
 #  limitations under the License.
 
 locals {
-  suffix_truncated = replace(replace(var.suffix, "-", ""), "_", "")
+  suffix_truncated  = replace(replace(var.suffix, "-", ""), "_", "")
+  private_dns_zones = merge(local.required_private_dns_zones, var.create_private_dns_zones)
 
-  private_dns_zones = {
-    blob     = "privatelink.blob.core.windows.net"
+  # DNS Zones required by bootstrap (for private links)
+  required_private_dns_zones = {
+    blob = "privatelink.blob.core.windows.net"
   }
 }

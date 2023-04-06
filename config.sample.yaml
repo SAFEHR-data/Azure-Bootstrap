@@ -12,12 +12,22 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ---
-suffix: __CHANGE_ME__
+suffix: samplebootstrap
 location: uksouth
-github_runner_version: 2.303.0  # see: https://github.com/actions/runner/releases/ (exclude the v)
-github_runner_instances: 1
-github_organization: __CHANGE_ME__
-address_space: 10.0.0.0/24
+github_organization: a-github-org
+github_runner_version: 2.303.0  # Optional - see: https://github.com/actions/runner/releases/
+github_runner_instances: 1  # Optional
+address_space: 10.0.0.0/24  # Optional
 
 network_watcher_name: NetworkWatcher_uksouth"  # Optional 
 network_watcher_resource_group_name: NetworkWatcherRG  # Optional
+
+create_private_dns_zones: #  Optional
+  blob: privatelink.blob.core.windows.net
+  keyvault: privatelink.vaultcore.azure.net
+  cosmos: privatelink.documents.azure.com
+  databricks: privatelink.azuredatabricks.net
+  sql: privatelink.database.windows.net
+  sample_resource: sample.resource.dns.zone
+
+existing_dns_zones_rg: sample-rg-name #  Optional

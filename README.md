@@ -14,20 +14,28 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
 
     ```
     # Exclude the top level config file
-    config.tfvars
+    config.yaml
     # Exclude the terraform state in the public template repo
     *terraform.tfstate*
     terraform.tfstate
     ```
 
-3. Log into Azure and optionally set a different subscription from your default:
+3. Copy the `config.sample.yaml` to `config.yaml` and configure the appropriate settings:
+
+    ```bash
+    cp config.sample.yaml config.yaml
+    ```
+
+    > See [`deployment/variables.tf`](deployment/variables.tf) for the descriptions of each setting.
+
+4. Log into Azure and optionally set a different subscription from your default:
 
     ```bash
     az login
     az account set -s <YOUR_SUBSCRIPTION_ID>
     ```
 
-4. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have **Organization Administration: Read and write** and **Self-hosted Runners: Read and write** scopes (as per the [docs](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization)) and will be required when running `make`. 
+5. Create a fine-grained Github Organization PAT for registering runners, with the **Resource Owner** set to the Organization you want the runners to be shared within. This PAT must have **Organization Administration: Read and write** and **Self-hosted Runners: Read and write** scopes (as per the [docs](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization)) and will be required when running `make`. 
 
     Copy the value and export it as an environment variable (we don't want this in config as it should be kept secret):
 
@@ -37,13 +45,13 @@ This repo uses Terraform, Terragrunt and the Azure CLI. Ensure you're either run
 
 > Note: be conscious of the expiry time that you set. You can generate a new PAT at any time and have shorter expiries for security, but ensure that you re-deploy with the new PAT before the old one expires, otherwise your build agents could stop functioning.
 
-5. Deploy the bootstrap resources:
+6. Deploy the bootstrap resources:
 
     ```bash
     make
     ```
 
-6. After successfully deploying, the values you'll need to use the bootstrap environment for your CI deployments are printed to the console. Make sure you capture these and use for the next section.
+7. After successfully deploying, the values you'll need to use the bootstrap environment for your CI deployments are printed to the console. Make sure you capture these and use for the next section.
 
 
 ## Using for CI

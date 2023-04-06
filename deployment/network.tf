@@ -28,22 +28,18 @@ resource "azurerm_subnet" "shared" {
   service_endpoints    = ["Microsoft.Storage"]
 }
 
-resource "azurerm_private_dns_zone" "all" {
-  for_each            = local.private_dns_zones
+resource "azurerm_private_dns_zone" "created_zones" {
+  for_each            = var.existing_dns_zones_rg == null ? local.private_dns_zones : {}
   name                = each.value
   resource_group_name = azurerm_resource_group.bootstrap.name
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "all" {
-  for_each              = local.private_dns_zones
-  name                  = "vnl-bootstrap-${each.key}-${var.suffix}"
+  for_each              = var.existing_dns_zones_rg == null ? azurerm_private_dns_zone.created_zones : data.azurerm_private_dns_zone.existing_zones
+  name                  = "vnl-${each.value.name}-bootstrap-${var.suffix}"
   resource_group_name   = azurerm_resource_group.bootstrap.name
-  private_dns_zone_name = each.value
+  private_dns_zone_name = each.value.name
   virtual_network_id    = azurerm_virtual_network.bootstrap.id
-
-  depends_on = [
-    azurerm_private_dns_zone.all
-  ]
 }
 
 resource "azurerm_network_security_group" "bootstrap" {

@@ -64,6 +64,10 @@ resource "azurerm_private_endpoint" "blob" {
 
   private_dns_zone_group {
     name                 = "private-dns-zone-group-blob-${var.suffix}"
-    private_dns_zone_ids = [azurerm_private_dns_zone.all["blob"].id]
+    private_dns_zone_ids = [
+      var.existing_dns_zones_rg == null
+        ? azurerm_private_dns_zone.created_zones["blob"].id
+        : data.azurerm_private_dns_zone.existing_zones["blob"].id
+    ]
   }
 }

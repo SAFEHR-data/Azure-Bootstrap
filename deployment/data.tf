@@ -13,5 +13,12 @@
 #  limitations under the License.
 
 data "http" "local_ip" {
-  url   = "https://api64.ipify.org"
+  url = "https://api64.ipify.org"
+}
+
+# If an existing dns zones rg is set, read the required zones instead of creating them
+data "azurerm_private_dns_zone" "existing_zones" {
+  for_each            = var.existing_dns_zones_rg != null ? local.required_private_dns_zones : {}
+  name                = each.value
+  resource_group_name = var.existing_dns_zones_rg
 }

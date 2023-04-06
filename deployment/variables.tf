@@ -44,18 +44,24 @@ variable "tags" {
 }
 
 variable "github_runner_token" {
-  description = "Github persional access token with admin:org scopes to be able to register GH runners"
+  description = "Github persional access token with admin and runner scopes to be able to register GH runners"
   type        = string
 }
 
 variable "github_organization" {
-  description = "GitHub organisation in which to register this runner"
+  description = "GitHub organisation in which to register the build agent (runner)"
   type        = string
 }
 
 variable "github_runner_version" {
-  description = "Release version of the GitHub runner to use e.g. v2.303.0"
+  description = "Release version of the GitHub runner to use"
   type        = string
+  default     = "2.303.0"
+
+  validation {
+    condition     = !startswith(var.github_runner_version, "v")
+    error_message = "Please remove the v prefix from the version number"
+  }
 }
 
 variable "github_runner_instances" {
@@ -67,6 +73,7 @@ variable "github_runner_instances" {
 variable "address_space" {
   description = "Address space for vnet. This must not overlap with any addresses that will be peered. e.g. 10.0.0.0/24"
   type        = string
+  default     = "10.0.0.0/24"
 }
 
 variable "network_watcher_name" {
@@ -77,6 +84,24 @@ variable "network_watcher_name" {
 
 variable "network_watcher_resource_group_name" {
   description = "Resource group in which the network watcher exists"
+  type        = string
+  default     = null
+}
+
+variable "create_private_dns_zones" {
+  description = <<EOF
+The private DNS zones to create that are required by subsequent deployments that bootstrap
+will be peered to. Will be ignored if existing_dns_zones_rg is set.
+EOF
+  type        = map(string)
+  default     = {}
+}
+
+variable "existing_dns_zones_rg" {
+  description = <<EOF
+The resource group name containing existing private DNS zones to link to for private links. If
+unspecified, bootstrap will create the zones it requires.
+EOF
   type        = string
   default     = null
 }
