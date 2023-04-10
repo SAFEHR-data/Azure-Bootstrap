@@ -26,21 +26,8 @@ resource "azurerm_storage_account" "bootstrap" {
   network_rules {
     default_action             = "Deny"
     bypass                     = ["AzureServices"]
-    virtual_network_subnet_ids = [azurerm_subnet.shared.id]
     # The deployers IP exception will be removed post apply, but must be present to create the container
     ip_rules                   = [chomp(data.http.local_ip.response_body)]
-  }
-
-  blob_properties {
-    container_delete_retention_policy {
-      days = 7
-    }
-
-    delete_retention_policy {
-      days = 7
-    }
-
-    change_feed_enabled = true
   }
 }
 

@@ -14,7 +14,10 @@
 			"terragrunt": "0.42.8"
 		},
 		"ghcr.io/stuartleeks/dev-container-features/azure-cli-persistence:0": {},
-		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:1": {
+			"jqVersion": "1.6"
+		}
 	},
 
 	// Configure tool-specific properties.

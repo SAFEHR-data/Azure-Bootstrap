@@ -20,3 +20,33 @@ resource "azurerm_container_registry" "bootstrap" {
   admin_enabled       = true
   tags                = var.tags
 }
+
+resource "azurerm_container_registry_task" "purge_stale_images" {
+  name                  = "purgeStaleImages"
+  container_registry_id = azurerm_container_registry.bootstrap.id
+
+  platform {
+    os           = "Linux"
+    architecture = "amd64" 
+  }
+
+  encoded_step {
+    task_content = <<EOF
+version: v1.1.0
+steps: 
+  - cmd: acr purge --untagged --ago 7d
+    disableWorkingDirectoryOverride: true
+    timeout: 3600
+EOF
+  }
+
+  agent_setting {
+    cpu = 2
+  }
+
+  timer_trigger {
+    name     = "daily"
+    schedule = "0 0 * * *"
+    enabled  = true
+  }
+}

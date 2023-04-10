@@ -17,12 +17,23 @@ set -o errexit
 set -o pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-# Remove any admin passwords from the state
 STATE_FILEPATH="${SCRIPT_DIR}/../deployment/terraform.tfstate"
-content=$(jq 'del(.. | .admin_password?)' "$STATE_FILEPATH")
+
+removeKey() {
+    content=$(jq "del(..|.$1?)" "$STATE_FILEPATH")
+    echo -E "${content}" > "$STATE_FILEPATH"
+}
+
+# Remove any passwords from the state
+removeKey admin_password
+removeKey primary_shared_key
+removeKey secondary_shared_key
+removeKey primary_access_key
+removeKey secondary_access_key
+removeKey primary_connection_string
+removeKey secondary_connection_string
+removeKey primary_blob_connection_string
+removeKey secondary_blob_connection_string
 
 # Remove the GitHub PAT from state
-content=$(sed "s/$GITHUB_RUNNER_PAT/PAT_TOKEN_OBFUSCATED/g" "$STATE_FILEPATH")
-
-echo -E "${content}" > "$STATE_FILEPATH"
+echo -E "$(sed 's/github_pat_[^ \"]*/PAT_TOKEN_OBFUSCATED/g' "$STATE_FILEPATH")" > "$STATE_FILEPATH"
