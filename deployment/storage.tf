@@ -37,20 +37,20 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 resource "azurerm_private_endpoint" "blob" {
-  name                = "pe-blob-bootstrap-${var.suffix}"
+  name                = "pe-blob-bootstrap-${local.suffix}"
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
   subnet_id           = azurerm_subnet.shared.id
 
   private_service_connection {
-    name                           = "private-service-connection-blob-${var.suffix}"
+    name                           = "private-service-connection-blob-${local.suffix}"
     is_manual_connection           = false
     private_connection_resource_id = azurerm_storage_account.bootstrap.id
     subresource_names              = ["blob"]
   }
 
   private_dns_zone_group {
-    name                 = "private-dns-zone-group-blob-${var.suffix}"
+    name                 = "private-dns-zone-group-blob-${local.suffix}"
     private_dns_zone_ids = [
       var.existing_dns_zones_rg == null
         ? azurerm_private_dns_zone.created_zones["blob"].id

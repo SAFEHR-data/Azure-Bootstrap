@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 ---
-suffix: samplebootstrap
+bootstrap_id: samplebootstrap
 location: uksouth
 github_organization: a-github-org
 github_runner_version: 2.303.0  # Optional - see: https://github.com/actions/runner/releases/

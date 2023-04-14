@@ -20,33 +20,35 @@ set -o nounset
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DEPLOYER_IP_ADDRESS="$(curl -s 'https://api64.ipify.org')"
+MODE="$1"
+STATE_FILE="$2"
 
 function storage_account_exists {
     cd "${SCRIPT_DIR}/../deployment"
     terraform state list | grep -q "azurerm_storage_account.bootstrap"
 }
 
-if [ ! -f "${SCRIPT_DIR}/../deployment/terraform.tfstate" ]; then
+if [ ! -f "${SCRIPT_DIR}/../deployment/${STATE_FILE}" ]; then
     echo "No state file found - will not modify any IP exceptions"
     exit 0
 fi
 
 if storage_account_exists; then
 
-    echo -n "Modifying to [$1] storage account IP exception..."
+    echo -n "Modifying to [$MODE] storage account IP exception..."
     STORAGE_ACCOUNT_NAME=$(terraform output ci_storage_account | tr -d '"')
     RESOURCE_GROUP_NAME=$(terraform output ci_resource_group | tr -d '"')
 
-    if [ "$1" = "add" ]; then
+    if [ "$MODE" = "add" ]; then
         NETWORK_SWITCH="Enabled" 
-    elif [ "$1" = "remove" ]; then
+    elif [ "$MODE" = "remove" ]; then
         NETWORK_SWITCH="Disabled"
     else
         echo "Unrecognised command"
         exit 1
     fi
 
-    az storage account network-rule "${1}" --account-name "$STORAGE_ACCOUNT_NAME" \
+    az storage account network-rule "${MODE}" --account-name "$STORAGE_ACCOUNT_NAME" \
     --ip-address "$DEPLOYER_IP_ADDRESS" > /dev/null
 
     az storage account update --name "$STORAGE_ACCOUNT_NAME" \

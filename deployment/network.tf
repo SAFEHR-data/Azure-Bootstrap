@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 resource "azurerm_virtual_network" "bootstrap" {
-  name                = "vnet-bootstrap-${var.suffix}"
+  name                = "vnet-bootstrap-${local.suffix}"
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
   tags                = var.tags
@@ -21,7 +21,7 @@ resource "azurerm_virtual_network" "bootstrap" {
 }
 
 resource "azurerm_subnet" "shared" {
-  name                 = "subnet-bootstrap-shared-${var.suffix}"
+  name                 = "subnet-bootstrap-shared-${local.suffix}"
   resource_group_name  = azurerm_resource_group.bootstrap.name
   virtual_network_name = azurerm_virtual_network.bootstrap.name
   address_prefixes     = [var.address_space]
@@ -36,14 +36,14 @@ resource "azurerm_private_dns_zone" "created_zones" {
 
 resource "azurerm_private_dns_zone_virtual_network_link" "all" {
   for_each              = var.existing_dns_zones_rg == null ? azurerm_private_dns_zone.created_zones : data.azurerm_private_dns_zone.existing_zones
-  name                  = "vnl-${each.value.name}-bootstrap-${var.suffix}"
+  name                  = "vnl-${each.value.name}-bootstrap-${local.suffix}"
   resource_group_name   = azurerm_resource_group.bootstrap.name
   private_dns_zone_name = each.value.name
   virtual_network_id    = azurerm_virtual_network.bootstrap.id
 }
 
 resource "azurerm_network_security_group" "bootstrap" {
-  name                = "nsg-bootstrap-${var.suffix}"
+  name                = "nsg-bootstrap-${local.suffix}"
   location            = azurerm_resource_group.bootstrap.location
   resource_group_name = azurerm_resource_group.bootstrap.name
 }
@@ -55,7 +55,7 @@ resource "azurerm_subnet_network_security_group_association" "shared" {
 
 resource "azurerm_network_watcher_flow_log" "bootstrap" {
   count                     = var.network_watcher_name != null ? 1 : 0
-  name                      = "nw-log-bootstrap-${var.suffix}"
+  name                      = "nw-log-bootstrap-${local.suffix}"
   resource_group_name       = var.network_watcher_resource_group_name
   network_watcher_name      = var.network_watcher_name
   network_security_group_id = azurerm_network_security_group.bootstrap.id

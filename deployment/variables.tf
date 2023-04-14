@@ -12,17 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-variable "suffix" {
+variable "bootstrap_id" {
   description = "Unique suffix to apply to resource names/ids"
   type        = string
 
   validation {
-    condition     = length(var.suffix) <= 16
-    error_message = "Must be 16 chars or less"
+    condition     = length(var.bootstrap_id) <= 12
+    error_message = "Must be 12 chars or less"
   }
 
   validation {
-    condition     = can(regex("^[a-z0-9\\_-]*$", var.suffix))
+    condition     = can(regex("^[a-z0-9\\_-]*$", var.bootstrap_id))
     error_message = "Cannot contain spaces, uppercase or special characters except '-' and '_'"
   }
 }
@@ -34,6 +34,21 @@ variable "location" {
   validation {
     condition     = can(regex("[a-z]+", var.location))
     error_message = "Only lowercase letters allowed"
+  }
+}
+
+variable "environment" {
+  description = "Environment name to differentiate deployments (ie. dev, prod)"
+  type        = string
+
+  validation {
+    condition     = length(var.environment) <= 12
+    error_message = "Must be 12 chars or less"
+  }
+
+  validation {
+    condition     = can(regex("^[a-z0-9\\_-]*$", var.environment))
+    error_message = "Cannot contain spaces, uppercase or special characters except '-' and '_'"
   }
 }
 
