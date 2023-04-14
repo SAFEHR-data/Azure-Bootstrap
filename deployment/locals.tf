@@ -13,7 +13,8 @@
 #  limitations under the License.
 
 locals {
-  suffix_truncated  = replace(replace(var.suffix, "-", ""), "_", "")
+  suffix            = "${var.bootstrap_id}-${var.environment}"
+  suffix_truncated  = replace(replace(local.suffix, "-", ""), "_", "")
   private_dns_zones = merge(local.required_private_dns_zones, var.create_private_dns_zones)
 
   # DNS Zones required by bootstrap (for private links)

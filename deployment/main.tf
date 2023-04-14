@@ -13,13 +13,13 @@
 #  limitations under the License.
 
 resource "azurerm_resource_group" "bootstrap" {
-  name     = "rg-bootstrap-${var.suffix}"
+  name     = "rg-bootstrap-${local.suffix}"
   location = var.location
   tags     = var.tags
 }
 
 resource "azurerm_log_analytics_workspace" "bootstrap" {
-  name                = "log-bootstrap-${var.suffix}"
+  name                = "log-bootstrap-${local.suffix}"
   resource_group_name = azurerm_resource_group.bootstrap.name
   location            = azurerm_resource_group.bootstrap.location
   sku                 = "PerGB2018"
@@ -31,7 +31,7 @@ module "build_agent" {
   source                     = "./build-agent"
   resource_group_name        = azurerm_resource_group.bootstrap.name
   location                   = azurerm_resource_group.bootstrap.location
-  suffix                     = var.suffix
+  suffix                     = local.suffix
   log_analytics_workspace_id = azurerm_log_analytics_workspace.bootstrap.id
   shared_subnet_id           = azurerm_subnet.shared.id
   github_runner_token        = var.github_runner_token

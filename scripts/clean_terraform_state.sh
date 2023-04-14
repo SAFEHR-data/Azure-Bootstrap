@@ -17,7 +17,8 @@ set -o errexit
 set -o pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-STATE_FILEPATH="${SCRIPT_DIR}/../deployment/terraform.tfstate"
+STATE_FILE="$1"
+STATE_FILEPATH="${SCRIPT_DIR}/../deployment/${STATE_FILE}"
 
 removeKey() {
     content=$(jq "del(..|.$1?)" "$STATE_FILEPATH")

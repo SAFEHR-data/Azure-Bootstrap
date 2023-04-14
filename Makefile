@@ -23,6 +23,7 @@ all: deploy
 deploy:  ## Deploy all bootstrap resources
 	$(call target_title, "Deploying Azure Bootstrap") \
 	&& cd ${MAKEFILE_DIR}/deployment \
+	&& terragrunt init -reconfigure \
 	&& terragrunt apply \
 	&& printf "\n 🥾 Use the below values for your GitHub configuration:\033[36m\n\n" \
 	&& terraform output -json \
