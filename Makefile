@@ -32,4 +32,5 @@ deploy:  ## Deploy all bootstrap resources
 destroy: ## Destroy all bootstrap resources
 	$(call target_title, "Destroying Azure Bootstrap") \
 	&& cd ${MAKEFILE_DIR}/deployment \
+	&& terragrunt init -reconfigure \
 	&& terragrunt destroy
