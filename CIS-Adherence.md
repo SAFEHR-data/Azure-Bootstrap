@@ -4,7 +4,7 @@ This document outlines the adherence of this repo to the Microsoft Azure Foundat
 
 ## What does this document apply to?
 
-This CIS adherence review primarily applies to a production subscription, where sensitive data is held and processed. For this repo, this would apply whenever this utility is used to bootstrap an environment that manages real data (i.e. `UCLH-Foundry/FlowEHR` in a `prod` subscription).
+This CIS adherence review primarily applies to a production subscription, where sensitive data is held and processed. For this repo, this would apply whenever this utility is used to bootstrap an environment that manages real data (i.e. `SAFEHR-data/FlowEHR` in a `prod` subscription).
 
 ## Note on Maintenance of this Document
 
@@ -14,7 +14,7 @@ Azure-Bootstrap is deployed using Terraform. Terraform maintains a text based st
 
 | Azure Resource | CIS Reference | Adherence | Notes |
 |--|--|--|--|
-| Azure Storage Account for FlowEHR management: <br/>`stgmgmt<suffix>` | `CIS 3` | [main.tf](./bootstrap/shared/management/main.tf) | Issues summarised https://github.com/UCLH-Foundry/FlowEHR/issues/176 / https://github.com/UCLH-Foundry/FlowEHR/issues/199 |
+| Azure Storage Account for FlowEHR management: <br/>`stgmgmt<suffix>` | `CIS 3` | [main.tf](./bootstrap/shared/management/main.tf) | Issues summarised https://github.com/SAFEHR-data/FlowEHR/issues/176 / https://github.com/SAFEHR-data/FlowEHR/issues/199 |
 | | `CIS 3.1`: Ensure 'Secure Transfer Required' set to 'Enabled' | Y | |
 | | `CIS 3.2`: Ensure 'Enable Infrastructure Encryption' set to 'Enabled' | Y |  |
 | | `CIS 3.3`: Enable key rotation reminders for each storage account | N | Storage keys are not used for authentication |

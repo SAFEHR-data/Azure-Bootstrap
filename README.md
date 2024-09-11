@@ -97,7 +97,7 @@ If you're using these runners on a public repository, you'll also need to go to 
 
 A key use-case for having storage and a container registry in a central CI/boostrap environment is for managing [Terraform state](https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage?tabs=azure-cli) and [Dev containers](https://containers.dev).
 
-For an example of how this is used, see the [UCLH-Foundry/FlowEHR repo](https://github.com/UCLH-Foundry/FlowEHR). The `CI_CONTAINER_REGISTRY` and `CI_STORAGE_ACCOUNT` values are passed in via a GitHub environment and used by the workflows to store dev containers Terraform state for the FlowEHR infrastructure deployments.
+For an example of how this is used, see the [SAFEHR-data/FlowEHR repo](https://github.com/SAFEHR-data/FlowEHR). The `CI_CONTAINER_REGISTRY` and `CI_STORAGE_ACCOUNT` values are passed in via a GitHub environment and used by the workflows to store dev containers Terraform state for the FlowEHR infrastructure deployments.
 
 
 ## Security considerations
